@@ -432,11 +432,60 @@ views.py の index 関数はなくなり、DetailView クラスや vote 関数�
 
 これで投票の最低限の機能ができました。
 
+##### 考えてみよう
+
+- reverse は一体何をやっているんだろう？　自分の言葉で説明してみよう
+
 #### 一覧画面
 
-このままでは、質問の番号がわからない限り投票に参加ができません。直近で公開された質問を表示するようにします。これまで何度も画面を追加してきたのでなんとなく流れがイメージできていると思います。
+このままでは、質問の番号がわからない限り投票に参加ができません。直近で公開された質問を表示する一覧画面を作ります。これまで何度も画面を追加してきたので、なんとなく流れがイメージできていると思います。
 
-まずは、 `polls/views.py` です。views/index.html です。
+まずは、 `polls/views.py` です
+
+```diff
+ from .models import Choice, Question
+
++class IndexView(generic.ListView):
++    template_name = 'polls/index.html'
++    context_object_name = 'latest_question_list'
++
++    def get_queryset(self):
++        """公開された順で5件取得"""
++        return Question.objects.order_by('-pub_date')[:5]
+
+ class DetailView(generic.DetailView):
+```
+
+`get_queryset` というのはデータベースにどういう問い合わせをするか決めることができます。ここでは公開された順に 5 件取得しています。件数は簡単に変更できそうですね。
+
+次に、 `polls/templates/polls/index.html` を新規作成します。
+
+```
+{% if latest_question_list %}
+    <ul>
+    {% for question in latest_question_list %}
+        <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No polls are available.</p>
+{% endif %}
+```
+
+このテンプレートでは、最新 5 件取得しようとしますが、もし何も質問がなければそれ専用のメッセージを出すようになっています。
+
+`polls/urls.py` にも IndexView を追加します。
+
+```
+ app_name = 'polls'
+ urlpatterns = [
++    path('', views.IndexView.as_view(), name='index'),
+     path('<int:pk>/', views.DetailView.as_view(), name='detail'),
+     path('<int:pk>/results/', views.ResultsView.as_view(), name='results'),
+     path('<int:question_id>/vote/', views.vote, name='vote'),
+```
+
+これで一覧画面が完成します。Django Admin を使って質問を 5 件以上追加して、最大 5 件しか閲覧できないことを確認してください。
 
 ```diff
 urlpatterns = [
