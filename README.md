@@ -381,6 +381,63 @@ views.py の index 関数はなくなり、DetailView クラスや vote 関数�
 
 しかし、結果画面がないためどれくらい投票されているのかわかりません。次は結果画面を作ります
 
+#### 結果画面
+
+これまでの流れから、どこに変更が必要かわかりますか？　`polls/views.py`、 `polls/templates/polls/results.html`、`polls/urls.py` に変更が必要だと思った方は、正解です。順を追っていきます。
+
+`polls/views.py` では結果画面を出すための処理を書きます。
+
+```diff
+  class DetailView(generic.DetailView):
+      model = Question
+      template_name = 'polls/detail.html'
+
++ class ResultsView(generic.DetailView):
++     model = Question
++     template_name = 'polls/results.html'
++
+  def vote(request, question_id):
+```
+
+次は、 `polls/templates/polls/result.html` です。
+
+```
+<h1>{{ question.question_text }}</h1>
+
+<ul>
+{% for choice in question.choice_set.all %}
+    <li>{{ choice.choice_text }} -- {{ choice.votes }} vote{{ choice.votes|pluralize }}</li>
+{% endfor %}
+</ul>
+
+<a href="{% url 'polls:detail' question.id %}">Vote again?</a>
+```
+
+結果画面の url を設定するため、 `polls/urls.py` を編集します。
+
+```diff
+  urlpatterns = [
+      path('<int:pk>/', views.DetailView.as_view(), name='detail'),
++     path('<int:pk>/results/', views.ResultsView.as_view(), name='results'),
+      path('<int:question_id>/vote/', views.vote, name='vote'),
+  ]
+```
+
+ちょっと一息ついて考えてみましょう。現状では投票したあと、同じ詳細画面に戻っていました。ユーザーとしては投票したら結果が知りたいはずです。 `polls/views.py` を次のように変更して結果画面に移動するようにしましょう。
+
+```diff
+-         return HttpResponseRedirect(reverse('polls:detail', args=(question.id,)))
++         return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+```
+
+これで投票の最低限の機能ができました。
+
+#### 一覧画面
+
+このままでは、質問の番号がわからない限り投票に参加ができません。直近で公開された質問を表示するようにします。これまで何度も画面を追加してきたのでなんとなく流れがイメージできていると思います。
+
+まずは、 `polls/views.py` です。views/index.html です。
+
 ```diff
 urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
