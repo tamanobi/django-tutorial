@@ -507,7 +507,69 @@ urlpatterns = [
 
 Heroku は無料から使えるウェブアプリケーションのホスティングサービスです。使い勝手も非常によく、 `git push` するだけでウェブアプリケーションがデプロイできます。
 
-アカウントがない人は、必ず作っておいてください。
+- アカウントがない人は、必ず作っておいてください
+- Heroku CLI をインストールしておいてください
+
+### Heroku をコマンドから使えるようにする
+
+Heroku CLI をインストールしていれば、次のコマンドで heroku をコマンドラインから制御することができます。登録時の ID やパスワードが必要になります。
+
+```
+$ heroku login
+```
+
+### Heroku にデプロイする
+
+Heroku にデプロイするためにいくつか設定が必要です。少々複雑ですが一度設定すれば、簡単にデプロイすることができます。
+
+#### HTTP サーバーの追加
+
+Heroku で Django を使うためにはアプリケーションサーバーの gunicorn を使います。あなたがこれまで利用していた `python manage.py runserver` でもウェブアプリケーションを利用できますが、これはあくまで開発用です。本番環境では、gunicorn という高速で軽量、そして安定している HTTP サーバーを利用します。
+
+`requirements.txt` へ gunicorn を追加して、 gunicorn ライブラリをインストールしましょう。
+
+```diff
+Django
++ gunicorn
+```
+
+ライブラリをインストールするときは、　`pip install -r requirements.txt` とするんでしたよね。やってみましょう。
+
+#### HTTP サーバー経由で起動してみる
+
+gunicorn 経由でウェブアプリケーションを起動するためには、次のようにします。config ディレクトリの wsgi というモジュールを読み込ませています。
+
+```
+$ gunicorn config.wsgi
+```
+
+#### Heroku にウェブアプリケーションの起動方法を教える
+
+Heroku は Procfile というファイルに起動方法を書いておくと、そのとおりに起動してくれます。ここでは、 gunicorn 経由でウェブアプリケーションを起動するため、 Procfile の中身を次のようにします。
+
+`web:` は Heroku にウェブアプリケーションですよと伝えるための識別子です。後ろに続くコマンドが実際に実行されるコマンドです。
+
+```Procfile
+web: gunicorn config.wsgi --log-file -
+```
+
+#### Heroku にデプロイする準備
+
+Heroku では一つ一つのアプリケーションに自動的に URL を発行してくれます。まず設定をするために、次のコマンドを打ちましょう。
+
+```
+$ heroku create
+```
+
+次のように URL が発行されているはずです。ここに出ている URL はあなたのウェブアプリケーションがデプロイされる URL です。
+
+```
+$ heroku create
+Creating app... done, ⬢ protected-badlands-45530
+https://protected-badlands-45530.herokuapp.com/ | https://git.heroku.com/protected-badlands-45530.git
+```
+
+いんすとーる
 
 `polls.apps.PollsConfig` を追加しています。
 
