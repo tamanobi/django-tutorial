@@ -553,7 +553,17 @@ Heroku は Procfile というファイルに起動方法を書いておくと、
 web: gunicorn config.wsgi --log-file -
 ```
 
-#### Heroku にデプロイする準備
+#### Heroku に Python のバージョンを教える
+
+Heroku はプログラミング言語の指定がない場合、自動的に推定して実行してくれます。たとえば Python アプリケーションを作ると自動的に Python 3.7.6 になります。今回は、 Python 3.8.3 を利用しているため、 `runtime.txt` に Python 3.8.3 を使う旨を記述します。
+
+```runtime.txt
+python-3.8.3
+```
+
+なお、 `runtime.txt` に書くテキストは、 https://devcenter.heroku.com/articles/python-support#specifying-a-python-version で決められています。なんでもバージョンが使えるとは限りません。
+
+#### Heroku で URL を発行する
 
 Heroku では一つ一つのアプリケーションに自動的に URL を発行してくれます。まず設定をするために、次のコマンドを打ちましょう。
 
