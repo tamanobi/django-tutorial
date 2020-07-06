@@ -731,58 +731,13 @@ $ heroku run python manage.py createsuperuser
 
 ### ウェブアプリケーションを改良しよう
 
+あなたのウェブアプリケーションは全世界に公開されているわけですから、これをもとにどんどん改良していきましょう。
+
+- ログイン機能をつける(Twitter ログインなど)
+- 一日 1 回しか投票できないようにする
+- だれでも質問と選択肢を作れるようにする
+- デザインをいい感じにするために CSS を入れてみる
+
+改良はあなたが思っているよりも、遥かに難しいかもしれません。しかし何度も壁にぶち当たるたびに、慣れてきます。
+
 以上です。
-
-#### スーパーユーザーを作る
-
-データを作るためには、以前やったように Django Admin に入る必要があります
-
-#### 静的ファイルの配信を Django
-
-いんすとーる
-
-`polls.apps.PollsConfig` を追加しています。
-
-`polls/views.py` は表示に関わる部分、 `polls/models.py` はデータに関わる部分を持っていることがなんとなくわかってきていると思います。
-
-データベースのテーブルを作成することを
-
-requirements.txt
-
-```
-
-\$ django-admin
-
-```
-
-## 必要ライブラリのインストール
-
-### macOS の場合
-
-```
-
-\$ env LDFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib" pip install -r requirements.txt
-
-```
-
-### Windows の場合
-
-```
-
-pip install -r requirements.txt
-
-```
-
-## Django を始める
-
-```
-
-$ mkdir project
-$ cd project
-\$ django-admin startproject config .
-
-```
-
-```
-
-```
