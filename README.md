@@ -579,6 +579,97 @@ Creating app... done, ⬢ protected-badlands-45530
 https://protected-badlands-45530.herokuapp.com/ | https://git.heroku.com/protected-badlands-45530.git
 ```
 
+#### Heroku にアクセスできるようにする
+
+セキュリティのために、サーバーが受理するリクエストを制限することがあります。デフォルトでは開発環境(127.0.0.1)でのみアクセス可能となっています。そのまま Heroku へデプロイしてしまうとサーバーはリクエストを受け付けません(403 を返します)。
+
+`config/settings.py` を次のように編集して、 heroku.com のサブドメインならリクエストを受理するようにしましょう。
+
+```diff
+-ALLOWED_HOSTS = []
++ALLOWED_HOSTS = [
++    "127.0.0.1",
++    ".herokuapp.com",
++]
+```
+
+#### 静的ファイルを配信できるようにする
+
+Django は非常に高機能なフレームワークです。しかし、JavaScript や CSS、画像などのファイル配信は未対応です。このようなアプリケーション側でほとんど加工せずにファイルをそのまま配信することを静的配信と言います。
+
+Django は静的配信はウェブアプリケーションの役割ではないというスタンスにいるわけですね。通常であれば、 Nginx や Apache のようなウェブサーバーが静的配信を行います（そしてそちらのほうが効率がいいです）。Heroku で動作させるためには、静的配信もウェブアプリケーションで実行する必要があります。
+
+そこで whitenoise というライブラリをインストールします。 `requirements.txt` に追記しましょう。
+
+```diff
+ Django
+ gunicorn
++whitenoise
+```
+
+```
+$ pip install -r requirements.txt
+```
+
+whitenoise は、Django のミドルウェアとして動作します。ミドルウェアは、リクエストの最初や最後に自動実行される仕組みで必要に応じて追加したり削除したりできます。
+
+whitenoise の公式ドキュメント http://whitenoise.evans.io/en/stable/#quickstart-for-django-apps によると、 `SecurityMiddleware` のすぐ下に入れてくださいと書いてあるため、そこに挿入します。
+
+```diff
+ MIDDLEWARE = [
+     'django.middleware.security.SecurityMiddleware',
++    'whitenoise.middleware.WhiteNoiseMiddleware', # http://whitenoise.evans.io/en/stable/#quickstart-for-django-apps
+     'django.contrib.sessions.middleware.SessionMiddleware',
+     'django.middleware.common.CommonMiddleware',
+     'django.middleware.csrf.CsrfViewMiddleware',
+```
+
+#### いざデプロイ！
+
+長い道のりでしたね。ここまでの設定で Heroku であなたのアプリケーションを公開する準備が整いました。変更したファイルをすべてコミットしてプッシュしましょう。
+
+```
+$ git add .
+$ git commit -m"Heroku にデプロイするため"
+$ git push heroku master
+```
+
+ずらずらとログが流れてくると思います。成功を祈りましょう。
+
+#### Heroku の URL にアクセスしてみよう！
+
+あなたの URL（https://protected-badlands-45530.herokuapp.com/ のような）にアクセスしてみてください。まだ polls のデータは入っていないので `/polls/1` にアクセスしてもエラーになります。
+
+#### Heroku 上でマイグレーション、そして Django Admin でデータを作る
+
+なぜデータがないのでしょうか？　そもそも以前やったようなデータマイグレーションを行っていないことに気づいた方もいるようですね。そうです、データマイグレーションとデータ作成が必要です。
+
+`heroku run` というコマンドで heroku のサーバー上でコマンドを実行することができます。
+
+```
+$ heroku run python manage.py migrate
+```
+
+次に、Django Admin に入るためにスーパーユーザーを作成します。このアプリケーションはすでに世界中に公開されています。 作成するユーザーのパスワードは強固なものを利用してください。
+
+```
+$ heroku run python manage.py createsuperuser
+```
+
+あなたの URL に `/admin` を付け加えて Django Admin にアクセスしてみましょう。ユーザー名とパスワードは、いま入力したものです。ログインできたら、Question と Choice を作成してみてください。
+
+入力できたら、再度アクセスしてアプリケーションで投票ができるか確認してください。
+
+### ウェブアプリケーションを改良しよう
+
+以上です。
+
+#### スーパーユーザーを作る
+
+データを作るためには、以前やったように Django Admin に入る必要があります
+
+#### 静的ファイルの配信を Django
+
 いんすとーる
 
 `polls.apps.PollsConfig` を追加しています。
