@@ -657,7 +657,17 @@ macOS の場合、OpenSSL のエラーがでる恐れがあります。エラー
 $ env LDFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib" pip install -r requirements.txt
 ```
 
-`config/settings.py` を 2 箇所修正してデータベースを使うようにします。
+`config/settings.py` を 3 箇所修正してデータベースを使うようにします。
+
+```diff
+ """
+
+ import os
++import dj_database_url
+
+ # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+```
 
 ```diff
  DATABASES = {
