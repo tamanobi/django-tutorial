@@ -476,7 +476,7 @@ views.py の index 関数はなくなり、DetailView クラスや vote 関数�
 
 `polls/urls.py` にも IndexView を追加します。
 
-```
+```diff
  app_name = 'polls'
  urlpatterns = [
 +    path('', views.IndexView.as_view(), name='index'),
@@ -492,6 +492,22 @@ urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
     path('<int:question_id>/vote/', views.vote, name='vote'),
 ]
+```
+
+### 考えてみよう
+
+- このウェブアプリケーションを改良するとしたらどう改良するといいでしょう（ヒント：あなたの作りたいものではなく、使う人の気持ちを考えましょう）
+- `Question.objects.order_by('-pub_date')[:5]` とは、どういう意味でしょうか？　ここでは新しい順に表示しましたが、古い順に表示するにはどうしたらいいでしょうか？
+
+## ウェブアプリケーションを公開しよう
+
+ここまでとてもシンプルなウェブアプリケーションを作ってきました。お疲れさまでした。あなたのローカル環境には、あなたが作ったウェブアプリケーションが動いていますね。ウェブアプリケーションは、インターネットを通じて世界中の人々にサービスを使ってもらえるという魅力があります。これから実際にアプリケーションを公開してみます。
+
+### Heroku
+
+Heroku は無料から使えるウェブアプリケーションのホスティングサービスです。使い勝手も非常によく、 `git push` するだけでウェブアプリケーションがデプロイできます。
+
+アカウントがない人は、必ず作っておいてください。
 
 `polls.apps.PollsConfig` を追加しています。
 
@@ -532,6 +548,8 @@ pip install -r requirements.txt
 $ mkdir project
 $ cd project
 \$ django-admin startproject config .
+
+```
 
 ```
 
