@@ -633,6 +633,56 @@ whitenoise の公式ドキュメント http://whitenoise.evans.io/en/stable/#qui
 +STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 ```
 
+#### データベースを使おう
+
+ローカル環境では手軽さを優先して SQLite3 を使っていました。Heroku では PostgreSQL というデータベースが無料で利用できます。せっかくなので使ってみましょう。設定ファイルを書き加えるだけです。
+
+`requirements.txt` を修正して PostgreSQL を簡単に使うためのライブラリをインストールします。
+
+```diff
+ Django
+ gunicorn
+ whitenoise
++psycopg2
++dj-database-url
+```
+
+```
+$ pip install -r requirements.txt
+```
+
+macOS の場合、OpenSSL のエラーがでる恐れがあります。エラーがでたら次を試してみてください。
+
+```
+$ env LDFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib" pip install -r requirements.txt
+```
+
+`config/settings.py` を 2 箇所修正してデータベースを使うようにします。
+
+```diff
+ DATABASES = {
+     'default': {
+-        'ENGINE': 'django.db.backends.sqlite3',
+-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
++        'ENGINE': 'django.db.backends.postgresql_psycopg2',
++        'NAME': 'django',
++        'USER': 'name',
++        'PASSWORD': '',
++        'HOST': 'localhost',
++        'PORT': '',
+     }
+ }
+```
+
+```diff
+
+ STATIC_URL = '/static/'
+ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
++
++db_from_env = dj_database_url.config(conn_max_age=500)
++DATABASES['default'].update(db_from_env)
+```
+
 #### いざデプロイ！
 
 長い道のりでしたね。ここまでの設定で Heroku であなたのアプリケーションを公開する準備が整いました。変更したファイルをすべてコミットしてプッシュしましょう。
