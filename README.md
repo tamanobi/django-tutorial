@@ -624,6 +624,15 @@ whitenoise の公式ドキュメント http://whitenoise.evans.io/en/stable/#qui
      'django.middleware.csrf.CsrfViewMiddleware',
 ```
 
+また、 http://whitenoise.evans.io/en/stable/django.html#make-sure-staticfiles-is-configured-correctly によれば、 `config/settings.py` の `STATIC_ROOT` を設定する必要があります。
+
+```diff
+ # https://docs.djangoproject.com/en/3.0/howto/static-files/
+
+ STATIC_URL = '/static/'
++STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+```
+
 #### いざデプロイ！
 
 長い道のりでしたね。ここまでの設定で Heroku であなたのアプリケーションを公開する準備が整いました。変更したファイルをすべてコミットしてプッシュしましょう。
